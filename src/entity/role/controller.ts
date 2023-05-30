@@ -6,6 +6,7 @@ import requestCtrl from "@entity/request/controller";
 import accessCtrl from "@entity/access/controller";
 import { Request } from "@entity/request/interface";
 import isOnlyLettersAndNumbers from "@/utils/isOnlyLettersAndNumbers";
+import { RolePayload } from "./interface";
 
 class controller extends c_controller {
   /**
@@ -50,7 +51,7 @@ class controller extends c_controller {
   async create(payload: Create) {
     // check dependencies accesses
     const requestsIds = payload.params.requests;
-    for (let i = 0; i < requestsIds.length; i += 1) {
+    for (let i = 0; i < requestsIds?.length; i += 1) {
       const requestId = requestsIds[i];
       const requestFound: Request = await requestCtrl.findById({
         id: requestId,
@@ -77,6 +78,9 @@ class controller extends c_controller {
     if (!isOnlyLettersAndNumbers(payload.params.title))
       throw new Error("The title should contain only letters and numbers.");
     const slug = payload.params.title.replace(" ", "_");
+    const roleFinded = await this.getRoleBySlug(slug);
+    console.log("roleFinded:", roleFinded);
+    if (roleFinded) return roleFinded;
     const { title, acceptTicket, titleInTicket, active, description } =
       payload.params;
     const newRole = await super.create({
@@ -85,7 +89,7 @@ class controller extends c_controller {
     });
     console.log("new role:", newRole);
     // save accesses
-    this.saveAccessesRole(newRole.id, requestsIds);
+    if (requestsIds.length > 0) this.saveAccessesRole(newRole.id, requestsIds);
     return newRole;
   }
 

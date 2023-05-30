@@ -131,3 +131,5 @@ dist
 
 build
 .DS_Store
+
+src/uploads

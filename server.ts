@@ -45,6 +45,8 @@ require("@entity/request/resolver")(app);
 require("@entity/access/resolver")(app);
 require("@entity/role/resolver")(app);
 require("@entity/user/resolver")(app);
+require("@entity/ticket/resolver")(app);
+require("@entity/ticketMessage/resolver")(app);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(404);

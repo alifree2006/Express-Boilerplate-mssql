@@ -21,15 +21,15 @@ function resolver(app: any) {
 
   // resolve get users
   const getUsersRequestPaylod: RequestPayload = {
-    title: "List of users",
-    path: "/users",
+    title: "List of all users",
+    path: "/panel/users",
     method: "GET",
-    slug: "get_users",
+    slug: "get_users_panel",
     parentSlug: "user",
-    dependencies: ["get_roles"],
+    dependencies: ["get_roles_panel"],
   };
   requestCtrl.create({ params: getUsersRequestPaylod });
-  app.get(`/${API_V}/users`, async (req: Request, res: Response) => {
+  app.get(`/${API_V}/panel/users`, async (req: Request, res: Response) => {
     try {
       const { filters, pagination } = getPaginationFiltersFromQuery(req.query);
       const foundedUsers = await userCtrl.find({ filters, pagination });
@@ -45,14 +45,14 @@ function resolver(app: any) {
   // Resolve create user
   const createUserPayload: RequestPayload = {
     title: "Create user",
-    path: `/user`,
+    path: `/panel/user`,
     method: "POST",
-    slug: "create_user",
+    slug: "create_user_panel",
     parentSlug: "user",
-    dependencies: ["get_roles"],
+    dependencies: ["get_roles_panel"],
   };
   requestCtrl.create({ params: createUserPayload });
-  app.post(`/${API_V}/user`, async (req: any, res: Response) => {
+  app.post(`/${API_V}/panel/user`, async (req: any, res: Response) => {
     try {
       await userCtrl.create({
         params: { ...req.body, passwordHash: req.body.password },
@@ -65,31 +65,31 @@ function resolver(app: any) {
 
   // Resolve update current user by himself
   const updateSelfUserPayload: RequestPayload = {
-    title: "Update himself",
+    title: "Update user by himself",
     description: "Update user information by himself",
-    path: `/selfUser`,
+    path: `/user`,
     method: "PATCH",
-    slug: "update_userself",
+    slug: "update_user",
     parentSlug: "user",
     dependencies: [],
   };
   requestCtrl.create({ params: updateSelfUserPayload });
-  app.patch(`/${API_V}/selfUser`, (req: any, res: Response) => {
+  app.patch(`/${API_V}/user`, (req: any, res: Response) => {
     userCtrl.findOneAndUpdate({ filters: req.userId, params: req.body });
     res.json({ msg: "Update done" });
   });
 
   // Resolve update user
   const updateUserPayload: RequestPayload = {
-    title: "Update user",
-    path: `/user`,
+    title: "Update all users",
+    path: `/panel/user`,
     method: "PATCH",
-    slug: "update_user",
+    slug: "update_user_panel",
     parentSlug: "user",
-    dependencies: ["get_users", "get_roles"],
+    dependencies: ["get_users_panel", "get_roles_panel"],
   };
   requestCtrl.create({ params: updateUserPayload });
-  app.patch(`/${API_V}/user`, (req: any, res: Response) => {
+  app.patch(`/${API_V}/panel/user`, (req: any, res: Response) => {
     if (!req.body?.id)
       return res.status(400).json({ msg: "Id in update is required." });
     userCtrl.findOneAndUpdate({ filters: req.body.id, params: req.body });
@@ -98,15 +98,15 @@ function resolver(app: any) {
 
   // Resolve delete users
   const deleteUserPayload: RequestPayload = {
-    title: "delete user",
-    path: `/users`,
+    title: "delete all user",
+    path: `/panel/users`,
     method: "DELETE",
-    slug: "delete_user",
+    slug: "delete_user_panel",
     parentSlug: "user",
-    dependencies: ["get_users"],
+    dependencies: ["get_users_panel"],
   };
   requestCtrl.create({ params: deleteUserPayload });
-  app.delete(`/${API_V}/users`, async (req: any, res: Response) => {
+  app.delete(`/${API_V}/panel/users`, async (req: any, res: Response) => {
     if (!req.body?.ids && !req.body?.id)
       return res
         .status(400)

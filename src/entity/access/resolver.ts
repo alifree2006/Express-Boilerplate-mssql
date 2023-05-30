@@ -19,15 +19,15 @@ function resolver(app: any) {
 
   // resolve create access
   const createAccessRequestPaylod: RequestPayload = {
-    path: "/access",
+    title: "Set permitions",
+    path: "/panel/access",
     parentSlug: "access",
     method: "POST",
-    slug: "create_access",
-    title: "Create Access",
+    slug: "create_access_panel",
     dependencies: ["get_roles", "get_requests"],
   };
   requestCtrl.create({ params: createAccessRequestPaylod });
-  app.post(`/${API_V}/access`, async (req: Request, res: Response) => {
+  app.post(`/${API_V}/panel/access`, async (req: Request, res: Response) => {
     try {
       await accessCtrl.create({ params: req?.body });
       res.json({ msg: "Acccess created." });
@@ -38,15 +38,15 @@ function resolver(app: any) {
 
   // resolve get access
   const getAccessRequestPaylod: RequestPayload = {
-    path: "/accesses",
+    title: "Permitions List",
+    path: "/panel/accesses",
     parentSlug: "access",
     method: "GET",
-    slug: "get_accesses",
-    title: "Accesses List",
+    slug: "get_accesses_panel",
     dependencies: [],
   };
   requestCtrl.create({ params: getAccessRequestPaylod });
-  app.get(`/${API_V}/accesses`, async (req: Request, res: Response) => {
+  app.get(`/${API_V}/panel/accesses`, async (req: Request, res: Response) => {
     try {
       const { filters, pagination } = getPaginationFiltersFromQuery(req.query);
       const foundedAccesses = await accessCtrl.find({ filters, pagination });
@@ -59,15 +59,15 @@ function resolver(app: any) {
 
   // resolve delet access
   const deleteAccessRequestPaylod: RequestPayload = {
-    path: "/accesses",
+    title: "Delete Permition",
+    path: "/panel/accesses",
     parentSlug: "access",
     method: "DELETE",
     slug: "delete_accesses",
-    title: "Delete Access",
-    dependencies: ["get_accesses"],
+    dependencies: ["get_accesses_panel"],
   };
   requestCtrl.create({ params: getAccessRequestPaylod });
-  app.delete(`/${API_V}/accesses`, async (req: any, res: Response) => {
+  app.delete(`/${API_V}/panel/accesses`, async (req: any, res: Response) => {
     if (!req.body?.ids && !req.body?.id)
       return res
         .status(400)

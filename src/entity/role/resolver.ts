@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { RequestGroup, RequestPayload } from "@entity/request/interface";
 import roleCtrl from "./controller";
-import requestCtrl from "../request/controller";
+import requestCtrl from "@entity/request/controller";
 import getPaginationFiltersFromQuery from "@/utils/getPagenationFiltersFromQuery";
 import { Id } from "@/core/interface";
 module.exports = resolver;
@@ -20,14 +20,14 @@ function resolver(app: any) {
   // resolve get roles
   const getRolesRequestPaylod: RequestPayload = {
     title: "List of roles",
-    path: "/roles",
+    path: "/panel/roles",
     method: "GET",
-    slug: "get_roles",
+    slug: "get_roles_panel",
     parentSlug: "role",
     dependencies: [],
   };
   requestCtrl.create({ params: getRolesRequestPaylod });
-  app.get(`/${API_V}/roles`, async (req: Request, res: Response) => {
+  app.get(`/${API_V}/panel/roles`, async (req: Request, res: Response) => {
     try {
       const { filters, pagination } = getPaginationFiltersFromQuery(req.query);
       const foundedRoles = await roleCtrl.find({ filters, pagination });
@@ -41,14 +41,14 @@ function resolver(app: any) {
   // Resolve create role
   const createRolePayload: RequestPayload = {
     title: "Create role",
-    path: `/role`,
+    path: `/panel/role`,
     method: "POST",
-    slug: "create_role",
+    slug: "create_role_panel",
     parentSlug: "role",
     dependencies: ["get_requests", "get_accesses"],
   };
   requestCtrl.create({ params: createRolePayload });
-  app.post(`/${API_V}/role`, async (req: any, res: Response) => {
+  app.post(`/${API_V}/panel/role`, async (req: any, res: Response) => {
     try {
       await roleCtrl.create({
         params: req.body,
@@ -62,14 +62,18 @@ function resolver(app: any) {
   // Resolve update role
   const updateRoleRequestPayload: RequestPayload = {
     title: "Update role",
-    path: `/role`,
+    path: `/panel/role`,
     method: "PATCH",
-    slug: "update_role",
+    slug: "update_role_panel",
     parentSlug: "role",
-    dependencies: ["get_roles", "get_requests", "get_accesses"],
+    dependencies: [
+      "get_roles_panel",
+      "get_requests_panel",
+      "get_accesses_panel",
+    ],
   };
   requestCtrl.create({ params: updateRoleRequestPayload });
-  app.patch(`/${API_V}/role`, (req: any, res: Response) => {
+  app.patch(`/${API_V}/panel/role`, (req: any, res: Response) => {
     console.log("update role:", req.body);
     if (!req.body?.id)
       return res.status(400).json({ msg: "Id in update is required." });
@@ -80,14 +84,14 @@ function resolver(app: any) {
   // Resolve delete role
   const deleteRoleRequestPayload: RequestPayload = {
     title: "Delete role",
-    path: `/roles`,
+    path: `/panel/roles`,
     method: "DELETE",
-    slug: "delete_role",
+    slug: "delete_role_panel",
     parentSlug: "role",
-    dependencies: ["get_roles"],
+    dependencies: ["get_roles_panel"],
   };
   requestCtrl.create({ params: deleteRoleRequestPayload });
-  app.delete(`/${API_V}/roles`, async (req: any, res: Response) => {
+  app.delete(`/${API_V}/panel/roles`, async (req: any, res: Response) => {
     if (!req.body?.ids && !req.body?.id)
       return res
         .status(400)

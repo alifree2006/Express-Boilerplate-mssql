@@ -44,11 +44,6 @@ export default class controller {
    * @beta
    */
   async find(payload: QueryFind) {
-    if (payload?.pagination)
-      if (payload?.pagination.page === "off") {
-        const { pagination, ..._other } = payload;
-        return this.findAll(_other);
-      }
     payload = { saveLog: false, filters: {}, ...payload };
 
     if (payload.filters?.orderBy) {
@@ -62,6 +57,13 @@ export default class controller {
     console.log("payload:", payload);
     let result: any;
     log.setVariables(payload);
+
+    if (payload?.pagination)
+      if (payload?.pagination.page === "off") {
+        const { pagination, ..._other } = payload;
+        return this.findAll(_other);
+      }
+
     try {
       result = await this.service.find(
         payload.filters,

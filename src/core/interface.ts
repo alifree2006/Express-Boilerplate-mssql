@@ -13,6 +13,7 @@ export {
   Update,
   Delete,
   QueryResult,
+  Location,
   Id,
 };
 
@@ -92,6 +93,11 @@ type QueryResult = {
   nextPage: number;
   totalPages: number;
   totalDocument: number;
+};
+
+type Location = {
+  lat: string;
+  long: string;
 };
 
 type Id = Schema.Types.ObjectId;

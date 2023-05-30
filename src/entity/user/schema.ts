@@ -51,6 +51,7 @@ userSchema.set("toObject", {
     ret.name = `${ret.firstName} ${ret.lastName}`;
     delete ret._id;
     delete ret.__v;
+    delete ret.deleted;
   },
 });
 

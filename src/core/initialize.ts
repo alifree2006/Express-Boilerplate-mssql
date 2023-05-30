@@ -21,26 +21,29 @@ async function createRoles(): Promise<Role> {
       "The main admin with allow do all actions and have all perremisions.",
     slug: "super_admin",
     title: "Super admin",
+    requestsIds: [],
     active: true,
   };
 
   const admin: Role = await roleCtrl.create({ params: superAdmin });
 
-  const userGuest: RolePayload = {
+  const userRole: RolePayload = {
     acceptTicket: false,
     description: "Normal user. A new user has joined the site.",
     slug: "user",
     title: "User",
+    requestsIds: [],
     active: true,
   };
 
-  roleCtrl.create({ params: userGuest });
+  roleCtrl.create({ params: userRole });
 
   const roleGuest: RolePayload = {
     acceptTicket: false,
     description: "Guest user. How not loged in.",
     slug: "guest",
     title: "Guest",
+    requestsIds: [],
     active: true,
   };
 

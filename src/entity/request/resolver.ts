@@ -23,25 +23,30 @@ function resolver(app: any) {
 
   // resolve get roles
   const getRolesRequestPaylod: RequestPayload = {
-    path: "/allRequests",
+    title: "List of requests",
+    path: "/panel/allRequests",
     method: "GET",
-    slug: "get_requests",
+    slug: "get_requests_panel",
     parentSlug: "request",
     dependencies: [],
-    title: "List of requests",
   };
   requestCtrl.create({ params: getRolesRequestPaylod });
-  app.get(`/${API_V}/allRequests`, async (req: Request, res: Response) => {
-    try {
-      const { filters, pagination } = getPaginationFiltersFromQuery(req.query);
-      const foundedRequests = await requestCtrl.findAll({
-        filters,
-        pagination,
-      });
-      res.json(foundedRequests);
-    } catch (error) {
-      console.log(error);
-      res.status(400).json({ msg: "Unable to get list of requests." });
+  app.get(
+    `/${API_V}/panel/allRequests`,
+    async (req: Request, res: Response) => {
+      try {
+        const { filters, pagination } = getPaginationFiltersFromQuery(
+          req.query
+        );
+        const foundedRequests = await requestCtrl.findAll({
+          filters,
+          pagination,
+        });
+        res.json(foundedRequests);
+      } catch (error) {
+        console.log(error);
+        res.status(400).json({ msg: "Unable to get list of requests." });
+      }
     }
-  });
+  );
 }

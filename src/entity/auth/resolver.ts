@@ -19,12 +19,12 @@ function resolver(app: any) {
 
   // resolve register
   const registerRequestPaylod: RequestPayload = {
+    title: "Register",
     path: "/register",
     method: "POST",
     slug: "register",
     parentSlug: "authentication",
     dependencies: [],
-    title: "Register",
   };
   requestCtrl.create({ params: registerRequestPaylod });
   app.post(`/${API_V}/register`, (req: Request, res: Response) => {
@@ -34,36 +34,40 @@ function resolver(app: any) {
   // always allowed path
   // resolve Authentication
   const authRequestPaylod: RequestPayload = {
-    path: "/auth",
+    title: "Panel Authentication",
+    path: "/panel/auth",
     parentSlug: "authentication",
     method: "POST",
-    slug: "auth",
-    title: "Authentication",
+    slug: "auth_panel",
     dependencies: [],
   };
   requestCtrl.create({ params: authRequestPaylod });
 
-  app.post(`/${API_V}/auth`, loginLimiter, (req: Request, res: Response) => {
-    try {
-      userCtrl.auth(req, res);
-    } catch (error: any) {
-      res.status(500).json({ msg: error.message });
+  app.post(
+    `/${API_V}/panel/auth`,
+    loginLimiter,
+    (req: Request, res: Response) => {
+      try {
+        userCtrl.auth(req, res);
+      } catch (error: any) {
+        res.status(500).json({ msg: error.message });
+      }
     }
-  });
+  );
 
   // resolve refreshAccessToken
   // always allowed path
   const refreshRequestPaylod: RequestPayload = {
-    path: "/auth/refresh",
+    path: "/panel/auth/refresh",
     parentSlug: "authentication",
     method: "GET",
     slug: "auth_refresh",
-    title: "Refresh access tocken",
-    dependencies: [],
+    title: "Panel Refresh Tocken",
+    dependencies: ["auth_panel"],
   };
   requestCtrl.create({ params: refreshRequestPaylod });
 
-  app.get(`/${API_V}/auth/refresh`, (req: Request, res: Response) => {
+  app.get(`/${API_V}/panel/auth/refresh`, (req: Request, res: Response) => {
     try {
       userCtrl.refreshToken(req, res);
     } catch (error: any) {
@@ -74,12 +78,12 @@ function resolver(app: any) {
   // resolve /user/profile - get user info by aaccessToken
   // always allowed path
   const getPropfileRequestPaylod: RequestPayload = {
+    description: "Get user profile info by himself",
     path: "/auth/profile",
     parentSlug: "authentication",
     method: "GET",
     slug: "auth_profile",
     title: "Get profile",
-    description: "Get user profile info by himself",
     dependencies: [],
   };
   requestCtrl.create({ params: getPropfileRequestPaylod });
