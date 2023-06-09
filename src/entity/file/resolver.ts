@@ -47,11 +47,11 @@ function resolver(app: any) {
   // resolve upload file
   // always allowed path
   const uploadFileRequestPaylod: RequestPayload = {
+    title: "Upload File",
     path: "/file/upload",
     parentSlug: "file",
     method: "POST",
     slug: "upload_file",
-    title: "Upload File",
     dependencies: [],
   };
   requestCtrl.create({ params: uploadFileRequestPaylod });

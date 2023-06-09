@@ -7,8 +7,8 @@ export type Role = Model & {
   description: string;
   acceptTicket?: boolean;
   titleInTicket?: string;
-  requestsIds?: Id[];
+  // requestsIds?: Id[];
   active: boolean;
 };
 
-export type RolePayload = Omit<Role, "id">;
+export type RolePayload = { requests: Id[] } & Omit<Role, "id">;

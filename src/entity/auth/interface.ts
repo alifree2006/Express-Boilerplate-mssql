@@ -17,9 +17,17 @@ export type DisablePreviuosDeviceAuth = {
   deviceUUID: string;
 };
 
+export type Logout = DisablePreviuosDeviceAuth;
+
 export type UpdateAccessToken = {
   userId: Id;
   deviceUUID: string;
   refreshToken: string;
   accessToken: string;
+};
+
+export type RegisterPaylod = {
+  email: string;
+  pwd: string;
+  confirmPwd: string;
 };

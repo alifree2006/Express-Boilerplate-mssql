@@ -130,6 +130,12 @@ class controller extends c_controller {
     foundedRole.data[0] = _foundedRole;
     return foundedRole;
   }
+
+  async getDefaultRole() {
+    return this.findOne({
+      filters: { slug: process.env.DEFAULT_ROLE_SLUG },
+    });
+  }
 }
 
 const roleCtrl = new controller(new roleService(roleSchema));

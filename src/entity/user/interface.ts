@@ -4,7 +4,7 @@ import { Role } from "@entity/role/interface";
 export type User = Model & {
   roles: Id[] | Role[];
   accesses?: string[];
-  mobile: string;
+  mobile?: string;
   email: string;
   passwordHash: string;
   refreshToken: string;
@@ -25,4 +25,10 @@ export type HaveAccessPayload = {
   userId?: Id;
   method: "POST" | "GET" | "PUT" | "DELETE";
   path: string;
+};
+
+export type ChangePassword = {
+  userId: Id;
+  oldPassword: string;
+  newPassword: string;
 };

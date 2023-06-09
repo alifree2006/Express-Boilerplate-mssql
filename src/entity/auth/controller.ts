@@ -12,7 +12,9 @@ import { Request, Response } from "express";
 import {
   Auth,
   DisablePreviuosDeviceAuth,
+  RegisterPaylod,
   UpdateAccessToken,
+  Logout,
 } from "./interface";
 import { HaveAccessPayload, User } from "@entity/user/interface";
 import { Request as RequestEntity } from "@entity/request/interface";
@@ -40,7 +42,7 @@ class controller extends c_controller {
   }: DisablePreviuosDeviceAuth) {
     await this.updateMany({
       filters: { userId, deviceUUID },
-      params: { active: false, accessToken: "", refreshToken: "" },
+      params: { active: false },
     });
   }
   async saveNewAuth({
@@ -169,14 +171,18 @@ class controller extends c_controller {
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: "15m" }
         );
-        this.updateAccessToken({
-          userId: user.id,
-          deviceUUID,
-          refreshToken,
-          accessToken,
-        });
-        const userWithAccesses = await userCtrl.getUserWithAccesses(user.id);
-        res.json({ accessToken, user: userWithAccesses });
+        if (refreshToken == "") {
+          res.status(401).json({ msg: "Your authentication expired." });
+        } else {
+          this.updateAccessToken({
+            userId: user.id,
+            deviceUUID,
+            refreshToken,
+            accessToken,
+          });
+          const userWithAccesses = await userCtrl.getUserWithAccesses(user.id);
+          res.json({ accessToken, user: userWithAccesses });
+        }
       }
     );
   }
@@ -221,6 +227,33 @@ class controller extends c_controller {
       if (access && allowed) return true;
     }
     return false;
+  }
+
+  async register(payload: RegisterPaylod) {
+    if (payload.pwd !== payload.confirmPwd)
+      throw new Error(
+        "The password and confirmation password must be the same"
+      );
+    const defaultRole = await roleCtrl.getDefaultRole();
+    const newUserPayload = {
+      roles: [defaultRole.id],
+      email: payload.email,
+      passwordHash: payload.pwd,
+    };
+    try {
+      return userCtrl.create({ params: newUserPayload });
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  }
+
+  async logout({ userId, deviceUUID }: Logout) {
+    try {
+      await this.disablePreviuosDeviceAuth({ userId, deviceUUID });
+    } catch (error) {
+      console.log("987 err:", error);
+      throw error;
+    }
   }
 }
 

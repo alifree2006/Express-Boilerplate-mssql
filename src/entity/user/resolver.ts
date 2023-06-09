@@ -119,4 +119,26 @@ function resolver(app: any) {
     if (filters.length) userCtrl.delete({ filters });
     res.json({ msg: "Delete user(s) done." });
   });
+
+  // Resolve chnage password
+  const changePasswordRequestPayload: RequestPayload = {
+    title: "Change password",
+    path: `/change-password`,
+    method: "PATCH",
+    slug: "chnage_password",
+    parentSlug: "user",
+    dependencies: [],
+  };
+  requestCtrl.create({ params: changePasswordRequestPayload });
+  app.patch(`/${API_V}/change-password`, async (req: any, res: Response) => {
+    const userId = req.userId;
+    try {
+      await userCtrl.changePassword({ userId, ...req.body });
+      res.json({ msg: "Change password done." });
+    } catch (error: any) {
+      res
+        .status(400)
+        .json({ msg: error.message || "Unable to change password." });
+    }
+  });
 }

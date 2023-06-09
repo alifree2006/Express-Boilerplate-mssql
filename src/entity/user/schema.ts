@@ -6,7 +6,7 @@ import userCtrl from "@entity/user/controller";
 const userSchema = new Schema<User>(
   {
     roles: [{ type: Schema.Types.ObjectId, ref: "role", required: true }],
-    mobile: { type: String, unique: true },
+    mobile: { type: String },
     email: { type: String, unique: true },
     passwordHash: { type: String, required: true },
     firstName: String,

@@ -1,11 +1,13 @@
+const bcrypt = require("bcryptjs");
 import c_controller from "@core/controller";
 import roleCtrl from "@entity/role/controller";
 import accessCtrl from "@entity/access/controller";
 import userService from "./service";
 import userSchema from "./schema";
-import { User } from "./interface";
+import { ChangePassword, User } from "./interface";
 import { Create, Id, QueryFind } from "@/core/interface";
 import { Role } from "@entity/role/interface";
+import hash from "@/utils/hash";
 
 class controller extends c_controller {
   /**
@@ -63,11 +65,18 @@ class controller extends c_controller {
         filters: { email: payload.params.email },
       });
       if (foundUser) throw new Error("Duplicate email.");
-      foundUser = await this.findOne({
-        filters: { mobile: payload.params.mobile },
-      });
-      if (foundUser) throw new Error("Duplicate mobile.");
-      await super.create(payload);
+      {
+        if (
+          typeof payload?.params.mobile !== "undefined" &&
+          payload?.params.mobile !== ""
+        )
+          foundUser = await this.findOne({
+            filters: { mobile: payload.params.mobile },
+          });
+        if (foundUser) throw new Error("Duplicate mobile.");
+      }
+      const user = await super.create(payload);
+      return user;
     } catch (error: any) {
       throw new Error(error?.message || "Unable to create user.");
     }
@@ -98,6 +107,7 @@ class controller extends c_controller {
       });
       for (let j = 0; j < accesses.data.length; j += 1) {
         const request = accesses.data[j].requestId;
+        if (!request) continue;
         if (listAccess.indexOf(request.slug) === -1)
           listAccess.push(request.slug);
       }
@@ -111,6 +121,24 @@ class controller extends c_controller {
     user = { ...user.toObject(), accesses: listAccess };
     return user;
   }
+
+  async changePassword(props: ChangePassword) {
+    const foundUser: User = await this.findById({ id: props.userId });
+    if (!foundUser) throw new Error("Unvalid user id.");
+    // evaluate password
+    const match = await bcrypt.compare(
+      props.oldPassword,
+      foundUser.passwordHash
+    );
+    if (!match) throw new Error("Invalid old (current) password.");
+    if (match) {
+      this.findOneAndUpdate({
+        filters: props.userId,
+        params: { passwordHash: await hash(props.newPassword) },
+      });
+    }
+  }
 }
 
-export default new controller(new userService(userSchema));
+const userCtrl = new controller(new userService(userSchema));
+export default userCtrl;

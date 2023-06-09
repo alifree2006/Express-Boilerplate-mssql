@@ -21,7 +21,7 @@ async function createRoles(): Promise<Role> {
       "The main admin with allow do all actions and have all perremisions.",
     slug: "super_admin",
     title: "Super admin",
-    requestsIds: [],
+    requests: [],
     active: true,
   };
 
@@ -32,7 +32,7 @@ async function createRoles(): Promise<Role> {
     description: "Normal user. A new user has joined the site.",
     slug: "user",
     title: "User",
-    requestsIds: [],
+    requests: [],
     active: true,
   };
 
@@ -43,7 +43,7 @@ async function createRoles(): Promise<Role> {
     description: "Guest user. How not loged in.",
     slug: "guest",
     title: "Guest",
-    requestsIds: [],
+    requests: [],
     active: true,
   };
 

@@ -6,12 +6,12 @@ require("dotenv").config();
 
 const verifyJWT = async (req: any, res: Response, next: NextFunction) => {
   const alwaysAllowed: boolean = await alwaysAllowedPath(req.path);
-  if (alwaysAllowed) {
+  const authHeader = req.headers["authorization"]; // authorization == accessToken
+  if (!authHeader && !alwaysAllowed) return res.sendStatus(401); // Unahthorized
+  if (!authHeader && alwaysAllowed) {
     next();
     return;
-  }
-  const authHeader = req.headers["authorization"]; // authorization == accessToken
-  if (!authHeader) return res.sendStatus(401); // Unahthorized
+  } // Unahthorized
   // console.log(authHeader); // Bearer token
   const token = authHeader.split(" ")[1];
   jwt.verify(
