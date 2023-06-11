@@ -5,6 +5,7 @@ import authCtrl from "./controller";
 import loginLimiter from "@/middleware/loginLimiter";
 import userCtrl from "@/entity/user/controller";
 import getHeaders from "@/utils/getHeaders";
+import decodeFirebaseIdToken from "@/firebase";
 
 module.exports = resolver;
 const API_V = process.env.API_VERSION;
@@ -55,13 +56,45 @@ function resolver(app: any) {
   };
   requestCtrl.create({ params: appAuthRequestPaylod });
 
-  app.post(`/${API_V}/auth`, loginLimiter, (req: Request, res: Response) => {
-    try {
-      authCtrl.auth(req, res);
-    } catch (error: any) {
-      res.status(500).json({ msg: error.message });
+  app.post(
+    `/${API_V}/auth`,
+    loginLimiter,
+    async (req: Request, res: Response) => {
+      try {
+        await authCtrl.auth(req, res);
+      } catch (error: any) {
+        res.status(500).json({ msg: error.message });
+      }
     }
-  });
+  );
+
+  // always allowed path
+  // resolve firebase Authentication
+  const appFirebaseAuthRequestPaylod: RequestPayload = {
+    title: "App Authentication",
+    path: "/firebase-auth",
+    parentSlug: "authentication",
+    method: "POST",
+    slug: "auth",
+    dependencies: [],
+  };
+  requestCtrl.create({ params: appFirebaseAuthRequestPaylod });
+
+  app.post(
+    `/${API_V}/firebase-auth`,
+    loginLimiter,
+    async (req: Request, res: Response) => {
+      try {
+        console.log(req.body.idTokens);
+        const dec = await decodeFirebaseIdToken(req.body.idTokens);
+        console.log("dec:", dec);
+      } catch (error: any) {
+        // res.status(500).json({ msg: error.message });
+        console.log(error.message);
+        res.status(500).json({ msg: "Unable in login." });
+      }
+    }
+  );
 
   // resolve refreshAccessToken
   // always allowed path
@@ -143,6 +176,20 @@ function resolver(app: any) {
       res.status(400).json({ msg: error.message });
     }
   });
+
+  // resolve /auth/set-reset-password
+  // always allowed path
+  app.post(
+    `/${API_V}/auth/set-reseted-password`,
+    async (req: Request, res: Response) => {
+      try {
+        await authCtrl.setNewPasswordByEmailReset(req.body);
+        authCtrl.auth(req, res);
+      } catch (error: any) {
+        res.status(400).json({ msg: error.message });
+      }
+    }
+  );
   // resolve /logout - register user
   // always allowed path
   const logoutRequestPaylod: RequestPayload = {

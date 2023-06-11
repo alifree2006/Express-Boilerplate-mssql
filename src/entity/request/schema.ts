@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import { Request } from "./interface";
 
-const actionSchema = new Schema<Request>(
+const requestSchema = new Schema<Request>(
   {
     parentSlug: { type: String || null, ref: "request", default: null },
     path: { type: String, required: false },
@@ -16,7 +16,7 @@ const actionSchema = new Schema<Request>(
   { timestamps: true }
 );
 
-actionSchema.set("toObject", {
+requestSchema.set("toObject", {
   transform: function (doc, ret, options) {
     ret.id = ret._id.toHexString();
     delete ret._id;
@@ -24,7 +24,7 @@ actionSchema.set("toObject", {
   },
 });
 
-actionSchema.set("toJSON", {
+requestSchema.set("toJSON", {
   transform: function (doc, ret, options) {
     ret.id = ret._id.toHexString();
     delete ret._id;
@@ -32,4 +32,4 @@ actionSchema.set("toJSON", {
     delete ret.deleted;
   },
 });
-export default model<Request>("request", actionSchema);
+export default model<Request>("request", requestSchema);

@@ -15,12 +15,15 @@ import {
   RegisterPaylod,
   UpdateAccessToken,
   Logout,
+  SetNewPasswordByEmailResetType,
 } from "./interface";
 import { HaveAccessPayload, User } from "@entity/user/interface";
 import { Request as RequestEntity } from "@entity/request/interface";
 import { Role } from "@entity/role/interface";
 import getHeaders from "@/utils/getHeaders";
 import { Id } from "@/core/interface";
+import verifyCtrl from "../verify/controller";
+import hash from "@/utils/hash";
 
 class controller extends c_controller {
   /**
@@ -89,16 +92,25 @@ class controller extends c_controller {
       return res.status(400).json({
         message: `deviceUUID is required. set in http header request ["Device-Uuid" = <uuid>]`,
       });
-    const { email, pwd } = req.body;
-    if (!email || !pwd)
+    const { email, password } = req.body;
+    if (!email || !password)
       return res
         .status(400)
         .json({ message: "Username and password are required." });
     const foundUser: User = await userCtrl.findOne({ filters: { email } });
     if (!foundUser) return res.sendStatus(401); //Unauthorized
     // evaluate password
-    const match = await bcrypt.compare(pwd, foundUser.passwordHash);
+    const match = await bcrypt.compare(password, foundUser.passwordHash);
     if (match) {
+      if (!foundUser.emailVerified) {
+        try {
+          verifyCtrl.sendEmailVerifyCode(email);
+          return res.json({ redirect: `/verify-email?email=${email}` });
+        } catch (error: any) {
+          console.log(error?.message);
+          return res.status(400).json({ msg: "Unable to send verify email." });
+        }
+      }
       // create JWTs
       const accessToken = jwt.sign(
         { userId: foundUser.id },
@@ -130,7 +142,7 @@ class controller extends c_controller {
       const userWithAccesses = await userCtrl.getUserWithAccesses(foundUser.id);
       res.json({ accessToken, user: userWithAccesses });
     } else {
-      res.sendStatus(401);
+      res.status(401).json({ msg: "Wrong password." });
     }
   }
 
@@ -230,15 +242,17 @@ class controller extends c_controller {
   }
 
   async register(payload: RegisterPaylod) {
-    if (payload.pwd !== payload.confirmPwd)
+    if (payload.password !== payload.confirmPassword)
       throw new Error(
         "The password and confirmation password must be the same"
       );
+    const notVerifyedUser = userCtrl.isExistUnverifyedUserEmail(payload.email);
+    if (notVerifyedUser) return notVerifyedUser;
     const defaultRole = await roleCtrl.getDefaultRole();
     const newUserPayload = {
       roles: [defaultRole.id],
       email: payload.email,
-      passwordHash: payload.pwd,
+      passwordHash: payload.password,
     };
     try {
       return userCtrl.create({ params: newUserPayload });
@@ -254,6 +268,23 @@ class controller extends c_controller {
       console.log("987 err:", error);
       throw error;
     }
+  }
+
+  async setNewPasswordByEmailReset({
+    email,
+    password,
+    verifyCode,
+  }: SetNewPasswordByEmailResetType) {
+    const isValidCode = await verifyCtrl.isVerifyCodeValid({
+      type: "EMAIL",
+      code: verifyCode,
+      origin: email,
+    });
+    if (!isValidCode) throw new Error("Unvalid verify code.");
+    await userCtrl.findOneAndUpdate({
+      filters: { email },
+      params: { passwordHash: await hash(password), emailVerified: true },
+    });
   }
 }
 

@@ -5,12 +5,16 @@ const alwaysAllowedPath = async (requestPath: string): Promise<boolean> => {
   const allowPass: string[] = [
     "/panel/auth",
     "/auth",
-    "/logout",
+    "/auth/register",
+    "/auth/verify-email",
+    "/auth/reset-password-request",
+    "/auth/set-reseted-password",
+    "/firebase-auth",
     "/panel/auth/refresh",
     "/auth/refresh",
     "/auth/profile",
     "/panel/file/upload",
-    "/auth/register",
+    "/logout",
   ];
   for (let i = 0; i < allowPass.length; i++) {
     const path = allowPass[i];

@@ -5,7 +5,9 @@ export type User = Model & {
   roles: Id[] | Role[];
   accesses?: string[];
   mobile?: string;
+  mobileVerified: boolean;
   email: string;
+  emailVerified: boolean;
   passwordHash: string;
   refreshToken: string;
   firstName: string;

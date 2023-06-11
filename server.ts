@@ -41,6 +41,7 @@ app.use(haveAccess);
 require("@core/resolver")(app);
 require("@entity/file/resolver")(app);
 require("@entity/auth/resolver")(app);
+require("@entity/verify/resolver")(app);
 require("@entity/request/resolver")(app);
 require("@entity/access/resolver")(app);
 require("@entity/role/resolver")(app);

@@ -138,6 +138,20 @@ class controller extends c_controller {
       });
     }
   }
+
+  async isExistUnverifyedUserEmail(email: string) {
+    let foundUser = await this.findOne({
+      filters: { email: email, emailVerified: false },
+    });
+    return foundUser;
+  }
+
+  async setEmailIsVerified(email: string) {
+    await this.findOneAndUpdate({
+      filters: { email },
+      params: { emailVerified: true },
+    });
+  }
 }
 
 const userCtrl = new controller(new userService(userSchema));

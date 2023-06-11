@@ -28,6 +28,12 @@ export type UpdateAccessToken = {
 
 export type RegisterPaylod = {
   email: string;
-  pwd: string;
-  confirmPwd: string;
+  password: string;
+  confirmPassword: string;
+};
+
+export type SetNewPasswordByEmailResetType = {
+  email: string;
+  password: string;
+  verifyCode: string;
 };
