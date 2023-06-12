@@ -1,2 +1,2 @@
 # Express-Boilerplate
-Express - MongoDB - REST
+Express - Mssql - REST
